@@ -12,11 +12,13 @@ def compute_peak_prominence(signal, peak_index):
 
     See https://mathworks.com/help/signal/ref/findpeaks.html for explanation of "Prominence".
 
-    :param array signal: An array containing the signal
+    :param signal: An array containing the signal
     :param peak_index: Index positions of the peaks
     :return: Array with the prominences for each peak. Length of this array is the same as len(peak_index).
     """
     prominence = []
+    left = 0
+    right = 0
     for index in peak_index:
         peak_amp = signal[index]
 
@@ -69,15 +71,16 @@ def findpeaks(signal, mph=None, mpd=1, threshold=0, mpp=None, edge='rising',
 
     # Using the "valley=True" option in detect_peaks does not work in combination with the prominence computation.
     # Instead, we simply invert the signal.
+    signal_temp = signal
     if valley:
-        signal = -signal
+        signal_temp = -signal
 
     # use detect_peaks to detect peaks in the input signal x
-    peak_index = detect_peaks.detect_peaks(signal, mph, mpd, threshold, edge, kpsh)
+    peak_index = detect_peaks.detect_peaks(signal_temp, mph, mpd, threshold, edge, kpsh)
 
     if mpp is not None:
         # compute the prominences for the peaks, and discard peaks that have prominence below mpp
-        prominence = compute_peak_prominence(signal, peak_index)
+        prominence = compute_peak_prominence(signal_temp, peak_index)
         peak_index = [peak_index[k] for k in range(len(peak_index)) if prominence[k] >= mpp]
 
     peak_signal = [signal[k] for k in peak_index]
